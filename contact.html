@@ -32,13 +32,20 @@
       <p class="lead reveal">Have a project idea or want to say hi? Send me a message.</p>
 
       <div class="grid-2 contact-grid">
-        <form action="https://formspree.io/f/movknerz" method="POST">
-  <input type="text" name="name" placeholder="Your Name" required>
-  <input type="email" name="_replyto" placeholder="Your Email" required>
-  <textarea name="message" placeholder="Your Message" required></textarea>
-  <button type="submit">Send</button>
-</form>
+        <form id="contact-form" action="https://formspree.io/f/movknerz" method="POST" class="card">
+          <label for="cf-name" class="sr-only">Your name</label>
+          <input id="cf-name" type="text" name="name" placeholder="Your Name" required>
 
+          <label for="cf-email" class="sr-only">Your email</label>
+          <input id="cf-email" type="email" name="email" placeholder="Your Email" required>
+
+          <label for="cf-message" class="sr-only">Your message</label>
+          <textarea id="cf-message" name="message" placeholder="Your Message" required></textarea>
+
+          <div class="form-msg" aria-live="polite"></div>
+
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
 
         <aside class="contact-info reveal">
           <div class="card">
