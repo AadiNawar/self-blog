@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aadi Nawar — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/style.css">
+  <script defer src="scripts/main.js"></script>
+  <script defer src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+  <script defer src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <header class="nav-wrap">
+    <nav class="nav container">
+  <a href="index.html" class="logo">Aadi Nawar</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="about.html" class="nav-link">About</a></li>
+        <li><a href="projects.html" class="nav-link">Projects</a></li>
+    <li><a href="contact.html" class="nav-link">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-bg">
+        <!-- animated background layers -->
+        <div class="bg-layer layer-1"></div>
+        <div class="bg-layer layer-2"></div>
+        <div class="bg-layer layer-3"></div>
+      </div>
+
+      <!-- HERO: reworked horizontal profile card (image left, name+role+buttons right) -->
+      <div class="container hero-inner">
+        <div class="profile-card horizontal reveal">
+          <!-- profile image (expanded) -->
+          <div class="profile-photo-wrap">
+            <img src="assets/profile-placeholder.png" alt="Aadi Nawar photo" class="profile-photo">
+          </div>
+
+          <!-- profile info: name + role (side-by-side) + tagline + CTAs -->
+          <div class="profile-info">
+            <!-- name and role aligned horizontally -->
+            <div class="name-role">
+              <h1 class="name">Aadi Nawar</h1>
+              <span class="role">Learning Enthusiast</span>
+            </div>
+
+            <!-- short description / tagline -->
+            <p class="tagline">Full‑stack learning enthusiast building neat interfaces, animations, and useful tools.</p>
+
+            <!-- CTA buttons (horizontal) -->
+            <div class="profile-buttons">
+              <a class="btn-clean" href="projects.html">See Projects</a>
+              <a class="btn btn-ghost" href="contact.html">Contact Me</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section about-preview">
+      <div class="container grid-2">
+        <div class="card reveal">
+          <h2>About Me</h2>
+          <p>I’m a developer focusing on building performant, accessible, and delightful web applications. I enjoy crafting UI, animations, and tooling.</p>
+          <a href="about.html" class="link">Read more →</a>
+        </div>
+        <div class="card skills reveal">
+          <h2>Key Skills</h2>
+          <div class="skill-list">
+            <div class="skill"><span>HTML</span><div class="bar"><div style="width:95%"></div></div></div>
+            <div class="skill"><span>CSS</span><div class="bar"><div style="width:90%"></div></div></div>
+            <div class="skill"><span>JavaScript</span><div class="bar"><div style="width:85%"></div></div></div>
+            <div class="skill"><span>React</span><div class="bar"><div style="width:80%"></div></div></div>
+            <div class="skill"><span>Python</span><div class="bar"><div style="width:70%"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects-preview">
+      <div class="container">
+        <h2 class="section-title reveal">Featured Projects</h2>
+        <div class="projects-grid">
+          <article class="project-card reveal">
+            <img src="assets/project1.png" alt="Project 1">
+            <div class="project-body">
+              <h3>Project One</h3>
+              <p>Short description of the project demonstrating key tech used and outcome.</p>
+              <div class="project-links">
+                <a class="icon" href="#"><i class="fab fa-github"></i></a>
+                <a class="link" href="#">Live</a>
+              </div>
+            </div>
+          </article>
+
+
+        </div>
+        <div class="center"><a class="btn btn-primary" href="projects.html">View All Projects</a></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+  <p>© <span id="year"></span> Aadi Nawar — Built with ❤️</p>
+      <div class="social">
+        <a href="#"><i class="fab fa-github"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
