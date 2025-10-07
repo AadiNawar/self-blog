@@ -18,17 +18,99 @@ document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.querySelector('.nav-links');
   const navWrap = document.querySelector('.nav-wrap');
   if(toggle && navLinks && navWrap){
+    // ensure clean initial state (no residual open state)
+    navLinks.classList.remove('mobile-open');
+    document.body.classList.remove('nav-open','lock-scroll');
+    navLinks.setAttribute('aria-hidden', 'true');
+    toggle.setAttribute('aria-expanded','false');
+
+    // Keep reference to original parent so we can restore navLinks
+    const navOriginalParent = navLinks.parentElement;
     toggle.addEventListener('click', ()=>{
       const open = navLinks.classList.toggle('mobile-open');
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      // portal the nav into body while open so it sits above all other elements
+      if(open){
+        navLinks.classList.add('portal');
+        // move navLinks into body so it stacks above everything
+        document.body.appendChild(navLinks);
+  // keep header toggle visible and let its aria-expanded state drive the X animation
+        // ensure an in-panel close button exists and is visible
+        let panelClose = navLinks.querySelector('.nav-close');
+        if(!panelClose){
+          panelClose = document.createElement('button');
+          panelClose.type = 'button';
+          panelClose.className = 'nav-close';
+          panelClose.setAttribute('aria-label','Close menu');
+          panelClose.innerHTML = '\u2715'; // multiplication X
+          // insert at the top of the panel
+          navLinks.insertBefore(panelClose, navLinks.firstChild);
+          // wire close handler
+          panelClose.addEventListener('click', ()=>{
+            if(navLinks.classList.contains('mobile-open')){
+              navLinks.classList.remove('mobile-open');
+              toggle.setAttribute('aria-expanded','false');
+              document.body.classList.remove('nav-open','lock-scroll');
+              navLinks.setAttribute('aria-hidden','true');
+              // restore to original parent
+              if(navOriginalParent) navOriginalParent.appendChild(navLinks);
+              // return focus to the header toggle for accessibility
+              toggle.focus();
+            }
+          });
+        }
+      } else {
+        navLinks.classList.remove('portal');
+        // restore navLinks to their original parent
+        if(navOriginalParent) navOriginalParent.appendChild(navLinks);
+  // header toggle will animate back to hamburger
+      }
+      // also add a body-level class so CSS can dim and lock scroll
+      document.body.classList.toggle('nav-open', open);
+      document.body.classList.toggle('lock-scroll', open);
+      navLinks.setAttribute('aria-hidden', open ? 'false' : 'true');
     });
-    // close menu when clicking a nav link (useful on mobile)
-    navLinks.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=>{
-      if(navLinks.classList.contains('mobile-open')){
-        navLinks.classList.remove('mobile-open');
-        toggle.setAttribute('aria-expanded','false');
+    // make nav links reliably navigate on mobile
+    navLinks.querySelectorAll('a').forEach(a=> a.addEventListener('click', (e)=>{
+      const href = a.getAttribute('href') || '';
+      // If it's an in-page anchor, let the smooth-scroll handler manage it
+      if(href.startsWith('#')){
+        // close the menu and allow the smooth scroll handler to run
+        if(navLinks.classList.contains('mobile-open')){
+          navLinks.classList.remove('mobile-open');
+          toggle.setAttribute('aria-expanded','false');
+          document.body.classList.remove('nav-open','lock-scroll');
+          navLinks.setAttribute('aria-hidden','true');
+        }
+        return; // do not interfere
+      }
+
+      // For normal page links, prevent default and navigate after closing the menu
+      // This avoids any interaction race where the overlay or handlers block the click
+      if(href && !href.startsWith('javascript:')){
+        e.preventDefault();
+        if(navLinks.classList.contains('mobile-open')){
+          navLinks.classList.remove('mobile-open');
+          toggle.setAttribute('aria-expanded','false');
+          document.body.classList.remove('nav-open','lock-scroll');
+          navLinks.setAttribute('aria-hidden','true');
+        }
+        // short delay to allow menu close animation to finish
+        setTimeout(()=>{ window.location.href = href; }, 200);
       }
     }));
+    // Note: we intentionally do not create an extra in-panel close button.
+    // The header `.nav-toggle` remains the persistent control and morphs into an X when open.
+    // close on Escape key
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && navLinks.classList.contains('mobile-open')){
+        navLinks.classList.remove('mobile-open');
+        toggle.setAttribute('aria-expanded','false');
+        document.body.classList.remove('nav-open','lock-scroll');
+        navLinks.setAttribute('aria-hidden','true');
+      }
+    });
+    // NOTE: Clicking outside no longer closes the panel to avoid accidental dismissals.
   }
 
   // smooth scroll for internal links
