@@ -43,8 +43,15 @@ body{
 .nav-links{list-style:none;margin:0;padding:0;display:flex;gap:0.5rem;align-items:center}
 .nav-links a{color:var(--muted);text-decoration:none;padding:0.5rem 0.75rem;border-radius:8px;transition:var(--transition)}
 .nav-links a:hover{color:#fff;background:rgba(255,255,255,0.03)}
-.nav-toggle{display:none;background:transparent;border:0;padding:0.25rem;cursor:pointer}
-.nav-toggle span{display:block;width:22px;height:2px;background:var(--muted);margin:4px 0;border-radius:2px}
+.nav-toggle{display:none;background:transparent;border:0;padding:6px;cursor:pointer;border-radius:8px;align-items:center;justify-content:center}
+.nav-toggle span{display:block;width:26px;height:3px;background:rgba(255,255,255,0.18);margin:5px 0;border-radius:3px;transition:transform 180ms ease, background 180ms ease}
+
+/* visible, larger toggle on mobile - make bars stack vertically */
+@media (max-width:960px){
+  .nav-toggle{display:inline-flex;flex-direction:column;gap:4px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:8px}
+  .nav-toggle span{background:linear-gradient(90deg,var(--accent),var(--accent-2));height:4px;width:28px}
+  .nav-toggle:focus{outline:2px solid rgba(0,229,255,0.12);outline-offset:3px}
+}
 
 /* Mobile nav open state: toggle class on .nav-wrap to show links */
 .nav-wrap .nav-links.mobile-open{display:flex;flex-direction:column;position:absolute;right:1rem;top:64px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:0.75rem;border-radius:10px;backdrop-filter:blur(6px);box-shadow:0 10px 30px rgba(0,0,0,0.6)}
@@ -78,6 +85,13 @@ body{
 /* Particle canvas sits behind content and is full-bleed */
 .particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:0}
 .hero, .section, .nav-wrap, .footer{position:relative;z-index:1}
+
+/* Force background bloom/particle layers behind hero content */
+.hero-bg{z-index:0; pointer-events:none}
+.hero-bg .bg-layer{pointer-events:none}
+
+/* Ensure hero content (container and profile card) sits above bloom */
+.hero .container, .profile-card, .profile-card.horizontal { position: relative; z-index: 3 }
 
 /* ------------------
    New horizontal profile card layout
@@ -160,8 +174,13 @@ body{
 }
 
 @media (max-width:560px){
-  .logo{font-size:0.95rem}
-  .hero-text h1{font-size:1.6rem}
+  .nav-toggle{display:inline-flex;flex-direction:column;gap:2px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:8px}
+  .nav-toggle span{background:linear-gradient(90deg,var(--accent),var(--accent-2));height:3px;width:28px}
+  /* animation: hamburger -> X */
+  .nav-toggle span{transform-origin:center;transition:transform 240ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease}
+  .nav-toggle[aria-expanded="true"] span:nth-child(1){transform: translateY(6px) rotate(45deg)}
+  .nav-toggle[aria-expanded="true"] span:nth-child(2){opacity:0; transform: scaleX(0)}
+  .nav-toggle[aria-expanded="true"] span:nth-child(3){transform: translateY(-6px) rotate(-45deg)}
 }
 
 /* small helpers */
@@ -172,3 +191,216 @@ body{
 a:focus,button:focus,input:focus,textarea:focus{outline:2px solid rgba(0,229,255,0.12);outline-offset:2px}
 
 /* End of style file */
+
+/* =========================
+   Improved mobile behavior
+   - right-side overlay menu
+   - lock page scroll while menu open
+   - make hero/card/buttons stack and be touch-friendly
+   ========================= */
+@media (max-width: 960px) {
+  /* convert the nav-links into a slide-over panel */
+  .nav-wrap .nav-links {
+    display: flex; /* ensure it's flex when opened via .mobile-open */
+    flex-direction: column;
+    gap: 0;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(320px, 86%);
+    max-width: 360px;
+    background: linear-gradient(180deg, rgba(10,13,17,0.96), rgba(6,8,12,0.98));
+    transform: translateX(110%);
+    transition: transform 300ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+    /* when hidden, don't intercept clicks from the main content */
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    padding: 3.5rem 1.25rem 1.25rem;
+  z-index: 10050; /* keep the slide-over well above hero/profile */
+    box-shadow: -20px 40px 80px rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+  }
+
+  /* When the nav is portaled to the body (JS moves it) use the same styles */
+  .nav-links.portal {
+    display: flex; /* ensure it's flex when opened via .mobile-open */
+    flex-direction: column;
+    gap: 0;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(320px, 86%);
+    max-width: 360px;
+    background: linear-gradient(180deg, rgba(10,13,17,0.96), rgba(6,8,12,0.98));
+    transform: translateX(110%);
+    transition: transform 300ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    padding: 3.5rem 1.25rem 1.25rem;
+    z-index: 10050; /* keep the slide-over well above hero/profile */
+    box-shadow: -20px 40px 80px rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+  }
+  .nav-links.portal.mobile-open{ transform: translateX(0); pointer-events:auto; opacity:1; visibility:visible }
+
+  /* NAV ITEMS: full-width horizontal slabs that span the panel and pop in */
+  .nav-links{ padding: 68px 14px 18px 14px; /* room for the close X and tighter side padding */ }
+  .nav-links li{ list-style:none }
+  .nav-links li a{
+    display:flex;align-items:center;justify-content:center;width:100%;height:64px;box-sizing:border-box;opacity:0;transform: translateX(12px) scale(0.98);transition: transform 360ms cubic-bezier(.2,.9,.2,1), opacity 320ms ease, box-shadow 320ms ease;will-change: transform, opacity;padding: 0 1rem;font-size:1rem;color:var(--muted);text-decoration:none;border-radius:12px;margin-bottom:12px;background: rgba(255,255,255,0.01);backdrop-filter: blur(2px);
+    /* make text slightly bolder for legibility */
+    font-weight:600;
+  }
+
+  /* visible state when JS toggles the mobile-open class on the .nav-links element */
+  .nav-wrap .nav-links.mobile-open {
+    transform: translateX(0);
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ensure toggle button is on top */
+  .nav-toggle { display: inline-flex; z-index: 10060 }
+
+  .nav-links a { padding: 0.9rem 0.75rem; color: var(--muted); border-radius:8px }
+
+  /* dim the page slightly when nav is open using body.nav-open */
+  body.nav-open::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 10040; pointer-events: auto;
+    background: rgba(3,6,8,0.45);
+    /* subtle blur so the page is still visible but de-emphasized */
+    backdrop-filter: blur(4px) saturate(1.05);
+    transition: opacity 260ms ease, backdrop-filter 260ms ease;
+  }
+
+  /* smooth panel open/close transitions */
+  /* slower, more visible panel open/close */
+  .nav-links, .nav-links.portal { transition: transform 420ms cubic-bezier(.2,.9,.2,1), opacity 300ms ease, box-shadow 420ms ease }
+
+  /* NAV ITEMS: prepare for pop-in animation */
+  .nav-links li a{
+    display:block;
+    width:100%;
+    box-sizing:border-box;
+    opacity:0;
+    transform: translateX(12px) scale(0.98);
+    transition: transform 360ms cubic-bezier(.2,.9,.2,1), opacity 320ms ease, box-shadow 320ms ease;
+    will-change: transform, opacity;
+    padding: 0.9rem 1rem;
+  }
+
+  /* when open, make items pop and stand out */
+  .nav-links.mobile-open li a,
+  .nav-links.portal.mobile-open li a{
+    opacity:1;
+    transform: translateX(0) scale(1);
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45), inset 0 -2px 8px rgba(0,0,0,0.05);
+  }
+
+  /* Staggered entrance so buttons pop sequentially */
+  .nav-links.mobile-open li:nth-child(1) a{ transition-delay: 80ms }
+  .nav-links.mobile-open li:nth-child(2) a{ transition-delay: 140ms }
+  .nav-links.mobile-open li:nth-child(3) a{ transition-delay: 200ms }
+  .nav-links.mobile-open li:nth-child(4) a{ transition-delay: 260ms }
+  .nav-links.portal.mobile-open li:nth-child(1) a{ transition-delay: 80ms }
+  .nav-links.portal.mobile-open li:nth-child(2) a{ transition-delay: 140ms }
+  .nav-links.portal.mobile-open li:nth-child(3) a{ transition-delay: 200ms }
+  .nav-links.portal.mobile-open li:nth-child(4) a{ transition-delay: 260ms }
+
+  /* Make hover/focus states pop */
+  .nav-links li a:active, .nav-links li a:focus, .nav-links li a:hover{
+    transform: translateX(0) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  }
+
+  /* when the toggle is moved into the panel, position it top-right inside the slide-over */
+  .nav-links .nav-toggle{ position: absolute; top: 12px; right: 12px; z-index: 10100; padding:8px; background: rgba(255,255,255,0.02); border-radius:8px; width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center }
+  .nav-links .nav-toggle span{ background: linear-gradient(90deg,var(--accent),var(--accent-2)); }
+  /* color the X halves differently when expanded to match the reference visual */
+  .nav-links .nav-toggle[aria-expanded="true"] span:nth-child(1){ background: linear-gradient(90deg,#ff4d6d,#ff4d6d) }
+  .nav-links .nav-toggle[aria-expanded="true"] span:nth-child(3){ background: linear-gradient(90deg,#4da6ff,#4da6ff) }
+  /* ensure nav-links has relative positioning so the toggle positions correctly */
+  .nav-links, .nav-links.portal { position: fixed; }
+
+  /* lock scroll when the menu is open (also applied by JS to <body>) */
+  body.lock-scroll { overflow: hidden; height: 100%; }
+
+  /* HERO stacking tweaks for small screens */
+  .profile-card.horizontal{flex-direction:column;align-items:center;text-align:center;padding:1rem}
+  .profile-card.horizontal img{width:150px;height:150px}
+  .profile-card.horizontal .profile-info{align-items:center}
+  .profile-card.horizontal .name-role{flex-direction:column;gap:0.25rem}
+  .profile-buttons{flex-direction:column;gap:1rem;width:100%;margin-top:1.1rem}
+  .profile-buttons .btn, .profile-buttons .btn-clean { width:100%; max-width:420px; padding:0.85rem 1rem; font-size:1rem }
+
+  /* improve tap targets for other buttons on small screens */
+  .btn, .btn-clean, .btn-primary { padding:0.75rem 1rem }
+
+  /* projects grid becomes single column for easier scrolling */
+  .projects-grid{grid-template-columns:1fr;gap:1rem}
+}
+
+/* ==========================
+   Small overrides: stronger overlay, persistent toggle, uniform slabs
+   These intentionally come last to override earlier mobile-specific rules
+   ========================== */
+
+/* stronger dim + blur when nav is open */
+body.nav-open::before{
+  background: rgba(3,6,14,0.72);
+  backdrop-filter: blur(10px) saturate(1.12);
+}
+
+/* promote the header toggle to a slightly larger, more visible control */
+.nav-toggle{
+  display:inline-flex !important;
+  width:48px;
+  height:48px;
+  padding:8px;
+  border-radius:12px;
+  background: rgba(255,255,255,0.03);
+  align-items:center;
+  justify-content:center;
+  transition: background 180ms ease, transform 180ms ease;
+  z-index:10060;
+}
+.nav-toggle span{ height:2px; width:22px; background:var(--muted); border-radius:2px; display:block; transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 180ms linear }
+.nav-toggle span + span{ margin-top:5px }
+.nav-toggle[aria-expanded='true'] span:nth-child(1){ transform: translateY(6px) rotate(45deg) }
+.nav-toggle[aria-expanded='true'] span:nth-child(2){ opacity:0; transform: scaleX(0) }
+.nav-toggle[aria-expanded='true'] span:nth-child(3){ transform: translateY(-6px) rotate(-45deg) }
+
+/* ensure the portaled panel has comfortable padding and tighter gaps */
+.nav-links.portal{ padding: 18px 12px 18px; gap:8px }
+
+/* ensure each slab is uniform and fills width */
+.nav-links li a{ height:64px !important; line-height:64px; padding: 0 1rem !important; border-radius:12px; display:flex;align-items:center;justify-content:center; font-weight:600 }
+
+/* three-line glyph removed per user request */
+
+/* in-panel close button (top-right inside the slide-over) */
+.nav-close{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width:40px;
+  height:40px;
+  display:inline-grid;
+  place-items:center;
+  border-radius:10px;
+  background: rgba(255,255,255,0.04);
+  color: var(--muted);
+  font-size:20px;
+  border: none;
+  z-index: 10120; /* above nav items */
+  cursor: pointer;
+}
+.nav-close:focus{ outline: 2px solid var(--accent); outline-offset: 2px }
